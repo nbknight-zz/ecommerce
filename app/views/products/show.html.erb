@@ -7,7 +7,7 @@
 
 <p>
   <strong>Price:</strong>
-  <%= @product.price %>
+  <%= number_to_currency(@product.price, :precision => (@product.price.round == @product.price) ? 0 : 2 )%>
 </p>
 
 <p>
@@ -32,7 +32,12 @@
 
 <p>
   <strong>Category:</strong>
-  <%= @product.category_id %>
+  <%= @product.category.name %>
+</p>
+
+<p>
+  <!-- <strong>Image:</strong> -->
+  <%= image_tag @product.image, size: 200 %>
 </p>
 
 <%= link_to 'Edit', edit_product_path(@product) %> |
