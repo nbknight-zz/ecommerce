@@ -2,6 +2,8 @@ class ProductsController < ApplicationController
   before_action :set_product, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!, except: [:show]
 
+
+  authorize_resource
   # GET /products
   # GET /products.json
   def index
