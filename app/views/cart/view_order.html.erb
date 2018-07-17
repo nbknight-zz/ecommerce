@@ -25,5 +25,7 @@
 	</table>
 </div>
 
-<%= link_to	"Proceed to Checkout", checkout_path, class: "btn btn-success" %>
-<%= link_to "Continue Shopping", root_path, class: "btn btn-info" %>
+<% unless @line_items.empty? %>
+	<%= link_to "Proceed to Checkout", checkout_path, class: "btn btn-success" %>
+<% end %>
+	<%= link_to "Continue Shopping", root_path, class: "btn btn-info" %>
