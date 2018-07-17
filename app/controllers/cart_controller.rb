@@ -2,17 +2,20 @@ class CartController < ApplicationController
 	before_action :authenticate_user!, only: [:checkout]
 
   def add_to_cart
+      line_item = LineItem.create(product_id: params[:product_id], quantity: params[:quantity])
 
     if params[:quantity].blank?
+      flash[:error] = "Select Quantity for your #{line_item.product.name}!"
+      line_item.destroy
       redirect_to root_url
 
     else
-    	line_item = LineItem.create(product_id: params[:product_id], quantity: params[:quantity])
+
     	line_item.update(line_item_total: (line_item.quantity * line_item.product.price))
 
     	redirect_to root_url
     end
-    
+
   end
 
   def delete_from_cart
