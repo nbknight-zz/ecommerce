@@ -5,7 +5,7 @@ class CartController < ApplicationController
     @order = current_order
       
     if params[:quantity].blank?
-      flash[:error] = "Select Quantity for your #{line_item.product.name}!"
+      flash[:error] = "Select Quantity for your"
       # line_item.destroy
       redirect_to root_url
 
