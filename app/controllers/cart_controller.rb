@@ -2,14 +2,17 @@ class CartController < ApplicationController
 	before_action :authenticate_user!, only: [:checkout]
 
   def add_to_cart
-      line_item = LineItem.create(product_id: params[:product_id], quantity: params[:quantity])
-
+    @order = current_order
+      
     if params[:quantity].blank?
       flash[:error] = "Select Quantity for your #{line_item.product.name}!"
-      line_item.destroy
+      # line_item.destroy
       redirect_to root_url
 
     else
+      line_item = @order.line_items.new(product_id: params[:product_id], quantity: params[:quantity])
+      @order.save
+      session[:order_id] = @order.id
 
     	line_item.update(line_item_total: (line_item.quantity * line_item.product.price))
 
@@ -28,20 +31,21 @@ class CartController < ApplicationController
   end
 
   def view_order
-    @line_items = LineItem.all
+    @line_items = current_order.line_items
   end
 
   def checkout
-    line_items = LineItem.all
+    line_items = current_order.line_items
 
     if line_items.empty?
 
       redirect_to root_url
     else
 
-    @order = Order.create(user_id: current_user.id, subtotal: 0)
+      @order = current_order
+      @order.update(user_id: current_user.id, subtotal: 0)
 
-    line_items.each do |line_item|
+      line_items.each do |line_item|
 
       line_item.product.update(quantity: (line_item.product.quantity - line_item.quantity))
 
@@ -66,7 +70,16 @@ class CartController < ApplicationController
 
   end
 
+  def cancel_checkout
+    order = Order.find(params[:order_id])
+    session.delete(:order_id)
+    order.destroy
+
+    redirect_to root_url
+  end
+
   def order_complete
+    line_items = current_order.line_items
      # Amount in cents
   @order = Order.find(params[:order_id])
   @amount = (@order.grand_total.to_f.round(2) * 100).to_i
@@ -82,6 +95,9 @@ class CartController < ApplicationController
     :description => 'Tech Talent Store Customer',
     :currency    => 'usd'
   )
+
+  session.delete(:order_id)
+  line_items.destroy_all
 
 rescue Stripe::CardError => e
   flash[:error] = e.message
